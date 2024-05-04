@@ -12,7 +12,7 @@ pub fn parse(tokens: &mut VecDeque<Token>) -> Result<JsonData, Error> {
     if tokens.is_empty() {
         Ok(JsonData {element})
     } else {
-        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json"))
+        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json: Additional Data Left Over"))
     }
 }
 
@@ -22,6 +22,22 @@ fn parse_element(tokens: &mut VecDeque<Token>) -> Result<JsonElement, Error> {
     } else {
         Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"))
     }
+}
+
+fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonElement>>, Error> {
+    if let Ok(element) = parse_element(tokens) {
+        let mut elements = vec![element];
+
+        while Token::Comma == *tokens.front().unwrap_or(&Token::Invalid) {
+            tokens.pop_front();
+            let element = parse_element(tokens)?;
+            elements.push(element);
+        }
+        
+        return Ok(Some(elements));
+    }
+    
+    Ok(None)
 }
 
 fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error> {
@@ -63,14 +79,32 @@ fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Erro
     if Token::CloseParen == *tokens.front().unwrap_or(&Token::Invalid) {
         tokens.pop_front();
     } else {
-        return Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Object"));
+        return Err(Error::new(std::io::ErrorKind::InvalidData, "No Closing Paren on Object"));
     }
 
     Ok(Some(result))
 }
 
-fn parse_array(_tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error> {
-    Err(Error::new(std::io::ErrorKind::InvalidData, "Array Parsing not implemented"))
+fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error> {
+    let mut result = JsonArray {elements: vec![]};
+    
+    if Token::OpenBracket == *tokens.front().unwrap_or(&Token::Invalid) {
+        tokens.pop_front();
+    } else {
+        return Ok(None);
+    }
+
+    if let Some(elements) = parse_elements(tokens)? {
+        result.elements = elements;
+    }
+
+    if Token::CloseBracket == *tokens.front().unwrap_or(&Token::Invalid) {
+        tokens.pop_front();
+    } else {
+        return Err(Error::new(std::io::ErrorKind::InvalidData, "No Closing Bracket on  Array"));
+    }
+
+    Ok(Some(result))
 }
 
 fn parse_string(_tokens: &mut VecDeque<Token>) -> Result<Option<JsonString>, Error> {
@@ -100,7 +134,6 @@ fn parse_members(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonMember>>
     Ok(None)
 }
 
-#[allow(dead_code)]
 fn parse_member(tokens: &mut VecDeque<Token>) -> Result<Option<JsonMember>, Error> {
     let string;
 
