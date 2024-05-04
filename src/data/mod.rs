@@ -23,9 +23,28 @@ pub struct JsonElement {
 }
 
 pub struct JsonObject {
+    pub pairs: Vec<(JsonString, JsonValue)>,
+}
+
+pub struct JsonArray {
+    pub values: Vec<JsonValue>,
+}
+
+pub struct JsonString {
 
 }
 
+pub struct JsonNumber {
+
+}
+
+#[allow(dead_code)]
 pub enum JsonValue {
-    Object(JsonObject)
+    Object(JsonObject),
+    Array(JsonArray),
+    String(JsonString),
+    Number(JsonNumber),
+    True,
+    False,
+    Null
 }
