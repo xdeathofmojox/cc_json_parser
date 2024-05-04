@@ -1,4 +1,4 @@
-use crate::data::{Token, JsonObject, JsonValue, JsonElement, JsonData};
+use crate::data::*;
 use std::io::Error;
 use std::collections::VecDeque;
 
@@ -25,6 +25,8 @@ fn parse_element(tokens: &mut VecDeque<Token>) -> Result<Option<JsonElement>, Er
 fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error> {
     if let Some(object) = parse_object(tokens)? {
         Ok(Some(JsonValue::Object(object)))
+    } else if let Some(array) = parse_array(tokens)? {
+        Ok(Some(JsonValue::Array(array)))
     } else {
         Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"))
     }
@@ -48,4 +50,8 @@ fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Erro
     }
 
     Ok(Some(result))
+}
+
+fn parse_array(_tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error> {
+    Err(Error::new(std::io::ErrorKind::InvalidData, "Array Parsing not implemented"))
 }
