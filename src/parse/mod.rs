@@ -8,25 +8,25 @@ pub fn parse(tokens: &mut VecDeque<Token>) -> Result<JsonData, Error> {
     }
 
     if let Some(element) = parse_element(tokens)? {
-        return Ok(JsonData {element: element});
+        Ok(JsonData {element})
     } else {
-        return Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json"));
+        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json"))
     }
 }
 
 fn parse_element(tokens: &mut VecDeque<Token>) -> Result<Option<JsonElement>, Error> {
     if let Some(value) = parse_value(tokens)? {
-        return Ok(Some(JsonElement {value: value}));
+        Ok(Some(JsonElement {value}))
     } else {
-        return Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"));
+        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"))
     }
 }
 
 fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error> {
     if let Some(object) = parse_object(tokens)? {
-        return Ok(Some(JsonValue::Object(object)));
+        Ok(Some(JsonValue::Object(object)))
     } else {
-        return Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"));
+        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"))
     }
 }
 

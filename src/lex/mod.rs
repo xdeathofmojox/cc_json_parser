@@ -28,6 +28,8 @@ pub fn lex(string: &mut &str) -> Result<VecDeque<Token>, Error> {
             result.push_back(token);
         } else if let Some(token) = lex_whitespace(string)? {
             result.push_back(token);
+        } else if let Some(token) = lex_number(string)? {
+            result.push_back(token);
         } else {
             return Err(Error::new(std::io::ErrorKind::Other, "Invalid Character"));
         }
@@ -84,7 +86,7 @@ fn lex_colon(string: &mut &str) -> Result<Option<Token>, Error> {
     Ok(None)
 }
 
-fn lex_string(string: &mut &str) -> Result<Option<Token>, Error> {
+fn lex_string(_string: &mut &str) -> Result<Option<Token>, Error> {
     Ok(None)
 }
 
@@ -113,12 +115,12 @@ fn lex_null(string: &mut &str) -> Result<Option<Token>, Error> {
 }
 
 fn lex_whitespace(string: &mut &str) -> Result<Option<Token>, Error> {
-    while string.starts_with(" ") || string.starts_with("\n") || string.starts_with("\t") || string.starts_with("\r") {
+    while string.starts_with(' ') || string.starts_with('\n') || string.starts_with('\t') || string.starts_with('\r') {
         *string = &string[1..];
     }
     Ok(None)
 }
 
-fn lex_number(string: &mut &str) -> Result<Option<Token>, Error> {
+fn lex_number(_string: &mut &str) -> Result<Option<Token>, Error> {
     Ok(None)
 }
