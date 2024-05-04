@@ -23,15 +23,20 @@ pub struct JsonElement {
 }
 
 pub struct JsonObject {
-    pub pairs: Vec<(JsonString, JsonValue)>,
+    pub members: Vec<JsonMember>,
+}
+
+pub struct JsonMember {
+    pub string: JsonString,
+    pub value: JsonValue,
 }
 
 pub struct JsonArray {
-    pub values: Vec<JsonValue>,
+    pub elements: Vec<JsonElement>,
 }
 
 pub struct JsonString {
-
+    _string: String,
 }
 
 pub struct JsonNumber {

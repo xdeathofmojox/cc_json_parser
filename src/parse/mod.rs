@@ -31,7 +31,7 @@ fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error>
 }
 
 fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Error> {
-    let result = JsonObject {pairs: vec![]};
+    let result = JsonObject {members: vec![]};
     
     if Token::OpenParen == *tokens.front().unwrap_or(&Token::Invalid) {
         tokens.pop_front();
