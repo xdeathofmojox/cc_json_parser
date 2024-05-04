@@ -28,7 +28,7 @@ pub struct JsonObject {
 
 pub struct JsonMember {
     pub string: JsonString,
-    pub value: JsonValue,
+    pub element: JsonElement,
 }
 
 pub struct JsonArray {
@@ -36,7 +36,7 @@ pub struct JsonArray {
 }
 
 pub struct JsonString {
-    _string: String,
+    pub string: String,
 }
 
 pub struct JsonNumber {
