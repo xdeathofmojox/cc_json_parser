@@ -1,5 +1,5 @@
 #[allow(dead_code)]
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum Token {
     OpenParen,
     CloseParen,
@@ -11,38 +11,46 @@ pub enum Token {
     True,
     False,
     Null,
-    Invalid,
+    Whitespace,
 }
 
+#[derive(Debug)]
 pub struct JsonData {
     pub element: JsonElement,
 }
 
+#[derive(Debug)]
 pub struct JsonElement {
     pub value: JsonValue,
 }
 
+#[derive(Debug)]
 pub struct JsonObject {
     pub members: Vec<JsonMember>,
 }
 
+#[derive(Debug)]
 pub struct JsonMember {
     pub string: JsonString,
     pub element: JsonElement,
 }
 
+#[derive(Debug)]
 pub struct JsonArray {
     pub elements: Vec<JsonElement>,
 }
 
+#[derive(Debug)]
 pub struct JsonString {
     pub string: String,
 }
 
+#[derive(Debug)]
 pub struct JsonNumber {
 
 }
 
+#[derive(Debug)]
 #[allow(dead_code)]
 pub enum JsonValue {
     Object(JsonObject),

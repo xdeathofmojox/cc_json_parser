@@ -15,7 +15,8 @@ fn parse_file(filename: &str) -> Result<(), Error> {
     let mut s = String::new();
     file.read_to_string(&mut s)?;
     let mut tokens = lex::lex(&mut s.as_str())?;
-    parse::parse(&mut tokens)?;
+    let json_data = parse::parse(&mut tokens)?;
+    println!("{:?}", json_data);
     Ok(())
 }
 
@@ -45,6 +46,7 @@ mod tests {
 
     #[test]
     fn test_step_2_valid_2() {
+        println!("{:?}", parse_file("tests/step2/valid2.json"));
         assert!(parse_file("tests/step2/valid2.json").is_ok());
     }
 

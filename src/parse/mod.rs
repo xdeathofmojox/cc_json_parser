@@ -28,7 +28,7 @@ fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonElement
     if let Ok(element) = parse_element(tokens) {
         let mut elements = vec![element];
 
-        while Token::Comma == *tokens.front().unwrap_or(&Token::Invalid) {
+        while let Some(&Token::Comma) = tokens.front() {
             tokens.pop_front();
             let element = parse_element(tokens)?;
             elements.push(element);
@@ -41,13 +41,13 @@ fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonElement
 }
 
 fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error> {
-    if Token::True == *tokens.front().unwrap_or(&Token::Invalid) {
+    if let Some(&Token::True) = tokens.front() {
         tokens.pop_front();
         Ok(Some(JsonValue::True))
-    } else if Token::False == *tokens.front().unwrap_or(&Token::Invalid) {
+    } else if let Some(&Token::False) = tokens.front() {
         tokens.pop_front();
         Ok(Some(JsonValue::False))
-    } else if Token::Null == *tokens.front().unwrap_or(&Token::Invalid) {
+    } else if let Some(&Token::Null) = tokens.front() {
         tokens.pop_front();
         Ok(Some(JsonValue::Null))
     } else if let Some(object) = parse_object(tokens)? {
@@ -66,7 +66,7 @@ fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error>
 fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Error> {
     let mut result = JsonObject {members: vec![]};
     
-    if Token::OpenParen == *tokens.front().unwrap_or(&Token::Invalid) {
+    if let Some(&Token::OpenParen) = tokens.front() {
         tokens.pop_front();
     } else {
         return Ok(None);
@@ -76,7 +76,8 @@ fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Erro
         result.members = members;
     }
 
-    if Token::CloseParen == *tokens.front().unwrap_or(&Token::Invalid) {
+    println!("{:?}", *tokens);
+    if let Some(&Token::CloseParen) = tokens.front() {
         tokens.pop_front();
     } else {
         return Err(Error::new(std::io::ErrorKind::InvalidData, "No Closing Paren on Object"));
@@ -88,7 +89,7 @@ fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Erro
 fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error> {
     let mut result = JsonArray {elements: vec![]};
     
-    if Token::OpenBracket == *tokens.front().unwrap_or(&Token::Invalid) {
+    if let Some(&Token::OpenBracket) = tokens.front() {
         tokens.pop_front();
     } else {
         return Ok(None);
@@ -98,7 +99,7 @@ fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error>
         result.elements = elements;
     }
 
-    if Token::CloseBracket == *tokens.front().unwrap_or(&Token::Invalid) {
+    if let Some(&Token::CloseBracket) = tokens.front() {
         tokens.pop_front();
     } else {
         return Err(Error::new(std::io::ErrorKind::InvalidData, "No Closing Bracket on  Array"));
@@ -107,11 +108,19 @@ fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error>
     Ok(Some(result))
 }
 
-fn parse_string(_tokens: &mut VecDeque<Token>) -> Result<Option<JsonString>, Error> {
-    Err(Error::new(std::io::ErrorKind::InvalidData, "String Parsing not implemented"))
+fn parse_string(tokens: &mut VecDeque<Token>) -> Result<Option<JsonString>, Error> {
+    if let Some(&Token::String(_)) = tokens.front() {
+        if let Token::String(string) = tokens.pop_front().unwrap() {
+            return Ok(Some(JsonString { string }));
+        } else {
+            return Err(Error::new(std::io::ErrorKind::InvalidData, "String not parsed correctly"));
+        }
+    }
+
+    Ok(None)
 }
 
-fn parse_number(_tokens: &mut VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
+fn parse_number(_tokens: &VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
     Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
 }
 
@@ -119,7 +128,7 @@ fn parse_members(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonMember>>
     if let Ok(Some(member)) = parse_member(tokens) {
         let mut members = vec![member];
 
-        while Token::Comma == *tokens.front().unwrap_or(&Token::Invalid) {
+        while let Some(&Token::Comma) = tokens.front() {
             tokens.pop_front();
             if let Some(member) = parse_member(tokens)? {
                 members.push(member);
@@ -143,7 +152,7 @@ fn parse_member(tokens: &mut VecDeque<Token>) -> Result<Option<JsonMember>, Erro
         return Ok(None);
     }
 
-    if Token::Colon == *tokens.front().unwrap_or(&Token::Invalid) {
+    if let Some(&Token::Colon) = tokens.front() {
         tokens.pop_front();
     } else {
         return Err(Error::new(std::io::ErrorKind::InvalidData, "No colon in member"));

@@ -26,8 +26,9 @@ pub fn lex(string: &mut &str) -> Result<VecDeque<Token>, Error> {
             result.push_back(token);
         } else if let Some(token) = lex_null(string)? {
             result.push_back(token);
-        } else if let Some(token) = lex_whitespace(string)? {
-            result.push_back(token);
+        } else if let Some(_token) = lex_whitespace(string)? {
+            // Do nothing about whitespace for now
+            // result.push_back(token);
         } else if let Some(token) = lex_number(string)? {
             result.push_back(token);
         } else {
@@ -86,8 +87,33 @@ fn lex_colon(string: &mut &str) -> Result<Option<Token>, Error> {
     Ok(None)
 }
 
-fn lex_string(_string: &mut &str) -> Result<Option<Token>, Error> {
+fn lex_string(string: &mut &str) -> Result<Option<Token>, Error> {
+    if string.starts_with('"') {
+        *string = &string[1..];
+        let mut new_string = String::new();
+        while !string.starts_with('"') {
+            // Handle Escape
+            if string.starts_with('\\') {
+                *string = &string[1..];
+                new_string.push_str(lex_escape(string)?.as_str());
+            } else {
+                new_string.push(string.chars().nth(0).unwrap());
+                *string = &string[1..];
+            }
+        }
+        *string = &string[1..];
+        return Ok(Some(Token::String(new_string)));
+    }
     Ok(None)
+}
+
+fn lex_escape(string: &mut &str) -> Result<String, Error> {
+    if string.starts_with('\\') {
+        *string = &string[1..];
+        Ok(String::from("\\\\"))
+    } else {
+        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Escape Character"))
+    }
 }
 
 fn lex_true(string: &mut &str) -> Result<Option<Token>, Error> {
@@ -115,8 +141,14 @@ fn lex_null(string: &mut &str) -> Result<Option<Token>, Error> {
 }
 
 fn lex_whitespace(string: &mut &str) -> Result<Option<Token>, Error> {
+    let mut found_whitespace = false;
     while string.starts_with(' ') || string.starts_with('\n') || string.starts_with('\t') || string.starts_with('\r') {
         *string = &string[1..];
+        found_whitespace = true;
+    }
+
+    if found_whitespace {
+        return Ok(Some(Token::Whitespace));
     }
     Ok(None)
 }
