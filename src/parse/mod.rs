@@ -106,7 +106,7 @@ fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error>
     if let Some(&Token::CloseBracket) = tokens.front() {
         tokens.pop_front();
     } else {
-        return Err(Error::new(std::io::ErrorKind::InvalidData, "No Closing Bracket on  Array"));
+        return Err(Error::new(std::io::ErrorKind::InvalidData, "No Closing Bracket on Array"));
     }
 
     Ok(Some(result))

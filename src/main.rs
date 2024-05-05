@@ -25,7 +25,7 @@ fn parse_file(filename: &str) -> Result<JsonData, Error> {
 mod tests {
     use super::*;
 
-    use crate::data::{JsonData, JsonElement, JsonValue, JsonObject};
+    use crate::data::*;
 
     #[test]
     fn test_step_1_valid() {
@@ -53,12 +53,37 @@ mod tests {
 
     #[test]
     fn test_step_2_valid() {
-        assert!(parse_file("tests/step2/valid.json").is_ok());
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("value")
+                                    })
+                                }
+                            }
+                        ]
+                    }
+                )
+            }
+        };
+
+        let json_result = parse_file("tests/step2/valid.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);
     }
 
     #[test]
     fn test_step_2_invalid() {
-        assert!(parse_file("tests/step2/invalid.json").is_err());
+        let json_result = parse_file("tests/step2/invalid.json");
+        assert!(json_result.is_err());
+        assert!(json_result.err().unwrap().to_string() == "Failed to parse members");
     }
 
     #[test]
