@@ -207,6 +207,29 @@ fn lex_whitespace(string: &mut &str) -> Result<Option<Token>, Error> {
     Ok(None)
 }
 
-fn lex_number(_string: &mut &str) -> Result<Option<Token>, Error> {
-    Ok(None)
+fn lex_number(string: &mut &str) -> Result<Option<Token>, Error> {
+    let char = string.chars().next();
+    match char {
+        Some('-') => {
+            *string = &string[1..];
+            return Ok(Some(Token::SignNeg));
+        },
+        Some('+') => {
+            *string = &string[1..];
+            return Ok(Some(Token::SignPos));
+        },
+        Some('0'..='9') => {
+            *string = &string[1..];
+            return Ok(Some(Token::Digit(char.unwrap() as u8)));
+        },
+        Some('.') => {
+            return Ok(Some(Token::FractionMarker));
+        },
+        Some('e') | Some('E') => {
+            return Ok(Some(Token::ExponentMarker));
+        }
+        _ => {
+            return Ok(None);
+        }
+    }
 }

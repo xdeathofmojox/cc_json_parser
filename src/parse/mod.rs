@@ -24,20 +24,16 @@ fn parse_element(tokens: &mut VecDeque<Token>) -> Result<JsonElement, Error> {
     }
 }
 
-fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonElement>>, Error> {
-    if let Ok(element) = parse_element(tokens) {
-        let mut elements = vec![element];
+fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Vec<JsonElement>, Error> {
+    let mut elements = vec![parse_element(tokens)?];
 
-        while let Some(&Token::Comma) = tokens.front() {
-            tokens.pop_front();
-            let element = parse_element(tokens)?;
-            elements.push(element);
-        }
-        
-        return Ok(Some(elements));
+    while let Some(&Token::Comma) = tokens.front() {
+        tokens.pop_front();
+        let element = parse_element(tokens)?;
+        elements.push(element);
     }
     
-    Ok(None)
+    return Ok(elements);
 }
 
 fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error> {
@@ -95,9 +91,7 @@ fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error>
         return Ok(None);
     }
 
-    if let Some(elements) = parse_elements(tokens)? {
-        result.elements = elements;
-    }
+    result.elements = parse_elements(tokens)?;
 
     if let Some(&Token::CloseBracket) = tokens.front() {
         tokens.pop_front();
@@ -120,12 +114,29 @@ fn parse_string(tokens: &mut VecDeque<Token>) -> Result<Option<JsonString>, Erro
     Ok(None)
 }
 
-fn parse_number(_tokens: &VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
+fn parse_number(tokens: &VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
+    if let Some(_integer) = parse_integer(tokens)? {
+
+    }
+    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
+}
+
+fn parse_integer(_tokens: &VecDeque<Token>) -> Result<Option<i64>, Error> {
+    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
+}
+
+#[allow(dead_code)]
+fn parse_fraction(_tokens: &VecDeque<Token>) -> Result<Option<u64>, Error> {
+    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
+}
+
+#[allow(dead_code)]
+fn parse_exponent(_tokens: &VecDeque<Token>) -> Result<Option<i64>, Error> {
     Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
 }
 
 fn parse_members(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonMember>>, Error> {
-    if let Ok(Some(member)) = parse_member(tokens) {
+    if let Some(member) = parse_member(tokens)? {
         let mut members = vec![member];
 
         while let Some(&Token::Comma) = tokens.front() {
@@ -146,7 +157,7 @@ fn parse_members(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonMember>>
 fn parse_member(tokens: &mut VecDeque<Token>) -> Result<Option<JsonMember>, Error> {
     let string;
 
-    if let Ok(Some(parsed_string)) = parse_string(tokens) {
+    if let Some(parsed_string) = parse_string(tokens)? {
         string = parsed_string;
     } else {
         return Ok(None);

@@ -7,11 +7,11 @@ pub enum Token {
     CloseBracket,
     Comma,
     Colon,
-    Number {
-        integer: i64,
-        fraction: Option<u64>,
-        exponent: Option<i64>
-    },
+    SignPos,
+    SignNeg,
+    Digit(u8),
+    FractionMarker,
+    ExponentMarker,
     String(String),
     True,
     False,
