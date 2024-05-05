@@ -220,5 +220,4 @@ fn parse_member(tokens: &mut VecDeque<Token>) -> Result<Option<JsonMember>, Erro
     } else {
         Err(Error::new(std::io::ErrorKind::InvalidData, "No element for string"))
     }
-
 }
