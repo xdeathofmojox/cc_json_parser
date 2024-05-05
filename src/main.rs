@@ -167,17 +167,79 @@ mod tests {
 
     #[test]
     fn test_step_2_invalid_2() {
-        assert!(handle_file("tests/step2/invalid2.json").is_err());
+        let json_result = handle_file("tests/step2/invalid2.json");
+        assert!(json_result.is_err());
+        assert!(json_result.err().unwrap().to_string() == "Invalid Character");
     }
 
     #[test]
     fn test_step_3_valid() {
-        assert!(handle_file("tests/step3/valid.json").is_ok());
-    }
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key1")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::True
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key2")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::False
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key3")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Null
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key4")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("value"),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key5")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber {
+                                        integer: 101,
+                                        fraction: None,
+                                        exponent: None,
+                                    })
+                                }
+                            },
+                        ]
+                    }
+                )
+            }
+        };
+
+        let json_result = handle_file("tests/step3/valid.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);    }
 
     #[test]
     fn test_step_3_invalid() {
-        assert!(handle_file("tests/step3/invalid.json").is_err());
+        let json_result = handle_file("tests/step3/invalid.json");
+        assert!(json_result.is_err());
+        assert!(json_result.err().unwrap().to_string() == "Invalid Character");
     }
 
     #[test]
