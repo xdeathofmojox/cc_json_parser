@@ -410,4 +410,51 @@ mod tests {
         assert!(json_result.is_ok());
         assert_eq!(json_result.unwrap(), expected);
     }
+
+    #[test]
+    fn test_step_5_valid_3() {
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString{
+                                    string: String::from("chars")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("\"\\/\\b\\f\n\r\t")
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString{
+                                    string: String::from("never\ngive\nup")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("never\nsurrender")
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString{
+                                    string: String::from("hex")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("\\u0000\\uFFFF")
+                                    })
+                                }
+                            },
+                        ]
+                    }
+                )
+            }
+        };
+        let json_result = handle_file("tests/step5/valid3.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);
+    }
 }

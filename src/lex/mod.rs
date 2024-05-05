@@ -118,13 +118,13 @@ fn lex_string(string: &mut &str) -> Result<Option<Token>, Error> {
 fn lex_escape(string: &mut &str) -> Result<String, Error> {
     if string.starts_with('"') {
         *string = &string[1..];
-        Ok(String::from("\\\""))
+        Ok(String::from("\""))
     } else if string.starts_with('\\') {
         *string = &string[1..];
-        Ok(String::from("\\\\"))
+        Ok(String::from("\\"))
     } else if string.starts_with('/') {
         *string = &string[1..];
-        Ok(String::from("\\/"))
+        Ok(String::from("/"))
     } else if string.starts_with('b') {
         *string = &string[1..];
         Ok(String::from("\\b"))
@@ -133,13 +133,13 @@ fn lex_escape(string: &mut &str) -> Result<String, Error> {
         Ok(String::from("\\f"))
     } else if string.starts_with('n') {
         *string = &string[1..];
-        Ok(String::from("\\n"))
+        Ok(String::from("\n"))
     } else if string.starts_with('r') {
         *string = &string[1..];
-        Ok(String::from("\\r"))
+        Ok(String::from("\r"))
     } else if string.starts_with('t') {
         *string = &string[1..];
-        Ok(String::from("\\t"))
+        Ok(String::from("\t"))
     } else if string.starts_with('u') {
         *string = &string[1..];
         Ok(lex_escape_hex(string)?)
