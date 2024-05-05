@@ -254,7 +254,9 @@ mod tests {
 
     #[test]
     fn test_step_4_invalid() {
-        assert!(handle_file("tests/step4/invalid.json").is_err());
+        let json_result = handle_file("tests/step4/invalid.json");
+        assert!(json_result.is_err());
+        assert!(json_result.err().unwrap().to_string() == "Invalid Character");
     }
 
     #[test]
