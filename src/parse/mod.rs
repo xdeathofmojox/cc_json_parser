@@ -7,33 +7,42 @@ pub fn parse(tokens: &mut VecDeque<Token>) -> Result<JsonData, Error> {
         return Err(Error::new(std::io::ErrorKind::InvalidData, "Empty Json"));
     }
 
-    let element = parse_element(tokens)?;
-    
-    if tokens.is_empty() {
-        Ok(JsonData {element})
+    if let Some(element) = parse_element(tokens)? {
+        if tokens.is_empty() {
+            Ok(JsonData {element})
+        } else {
+            Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json: Additional Data Left Over"))
+        }
     } else {
-        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json: Additional Data Left Over"))
+        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json: No Element"))
     }
 }
 
-fn parse_element(tokens: &mut VecDeque<Token>) -> Result<JsonElement, Error> {
+fn parse_element(tokens: &mut VecDeque<Token>) -> Result<Option<JsonElement>, Error> {
     if let Some(value) = parse_value(tokens)? {
-        Ok(JsonElement {value})
+        Ok(Some(JsonElement {value}))
     } else {
-        Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Json Element"))
+        Ok(None)
     }
 }
 
-fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Vec<JsonElement>, Error> {
-    let mut elements = vec![parse_element(tokens)?];
+fn parse_elements(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonElement>>, Error> {
+    if let Some(element) = parse_element(tokens)? {
+        let mut elements = vec![element];
 
-    while let Some(&Token::Comma) = tokens.front() {
-        tokens.pop_front();
-        let element = parse_element(tokens)?;
-        elements.push(element);
+        while let Some(&Token::Comma) = tokens.front() {
+            tokens.pop_front();
+            if let Some(element) = parse_element(tokens)? {
+                elements.push(element);
+            } else {
+                return Err(Error::new(std::io::ErrorKind::InvalidData, "Failed to parse element"));
+            }
+        }
+        
+        return Ok(Some(elements));
     }
-    
-    return Ok(elements);
+
+    Ok(None)
 }
 
 fn parse_value(tokens: &mut VecDeque<Token>) -> Result<Option<JsonValue>, Error> {
@@ -72,7 +81,6 @@ fn parse_object(tokens: &mut VecDeque<Token>) -> Result<Option<JsonObject>, Erro
         result.members = members;
     }
 
-    println!("{:?}", *tokens);
     if let Some(&Token::CloseParen) = tokens.front() {
         tokens.pop_front();
     } else {
@@ -91,7 +99,9 @@ fn parse_array(tokens: &mut VecDeque<Token>) -> Result<Option<JsonArray>, Error>
         return Ok(None);
     }
 
-    result.elements = parse_elements(tokens)?;
+    if let Some(elements) = parse_elements(tokens)? {
+        result.elements = elements;
+    }
 
     if let Some(&Token::CloseBracket) = tokens.front() {
         tokens.pop_front();
@@ -114,15 +124,51 @@ fn parse_string(tokens: &mut VecDeque<Token>) -> Result<Option<JsonString>, Erro
     Ok(None)
 }
 
-fn parse_number(tokens: &VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
-    if let Some(_integer) = parse_integer(tokens)? {
+fn parse_number(tokens: &mut VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
+    if let Some(integer) = parse_integer(tokens)? {
 
+        Ok(Some(JsonNumber {
+            integer,
+            fraction: None,
+            exponent: None,
+        }))
+    } else {
+        Ok(None)
     }
-    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
 }
 
-fn parse_integer(_tokens: &VecDeque<Token>) -> Result<Option<i64>, Error> {
-    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
+fn parse_integer(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
+    let mut counter = 0;
+    let mut neg_sign = false;
+    let mut found_nums = false;
+    let mut int_value: i64 = 0;
+    if let Some(&Token::SignNeg) = tokens.front() {
+        tokens.pop_front();
+        neg_sign = true;
+    }
+
+    while let Some(&Token::Digit(val)) = tokens.front() {
+        tokens.pop_front();
+        found_nums = true;
+        let new_num = int_value.checked_add((val as i64) * 10_i64.pow(counter));
+        if new_num.is_some() {
+            int_value = new_num.unwrap();
+        } else {
+            return Err(Error::new(std::io::ErrorKind::InvalidData, "Integer too large"));
+        }
+        counter += 1;
+    }
+
+    if neg_sign && !found_nums {
+        Err(Error::new(std::io::ErrorKind::InvalidData, "No digits following sign"))
+    } else if found_nums {
+        if neg_sign {
+            int_value = -int_value;
+        }
+        Ok(Some(int_value))
+    } else {
+        Ok(None)
+    }
 }
 
 #[allow(dead_code)]
@@ -169,6 +215,10 @@ fn parse_member(tokens: &mut VecDeque<Token>) -> Result<Option<JsonMember>, Erro
         return Err(Error::new(std::io::ErrorKind::InvalidData, "No colon in member"));
     }
 
-    let element = parse_element(tokens)?;
-    Ok(Some(JsonMember {string, element}))
+    if let Some(element) = parse_element(tokens)? {
+        Ok(Some(JsonMember {string, element}))
+    } else {
+        Err(Error::new(std::io::ErrorKind::InvalidData, "No element for string"))
+    }
+
 }

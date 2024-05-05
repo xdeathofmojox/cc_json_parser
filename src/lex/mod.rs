@@ -212,24 +212,24 @@ fn lex_number(string: &mut &str) -> Result<Option<Token>, Error> {
     match char {
         Some('-') => {
             *string = &string[1..];
-            return Ok(Some(Token::SignNeg));
+            Ok(Some(Token::SignNeg))
         },
         Some('+') => {
             *string = &string[1..];
-            return Ok(Some(Token::SignPos));
+            Ok(Some(Token::SignPos))
         },
         Some('0'..='9') => {
             *string = &string[1..];
-            return Ok(Some(Token::Digit(char.unwrap() as u8)));
+            Ok(Some(Token::Digit(char.unwrap() as u8)))
         },
         Some('.') => {
-            return Ok(Some(Token::FractionMarker));
+            Ok(Some(Token::FractionMarker))
         },
         Some('e') | Some('E') => {
-            return Ok(Some(Token::ExponentMarker));
+            Ok(Some(Token::ExponentMarker))
         }
         _ => {
-            return Ok(None);
+            Ok(None)
         }
     }
 }
