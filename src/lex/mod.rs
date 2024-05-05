@@ -223,9 +223,11 @@ fn lex_number(string: &mut &str) -> Result<Option<Token>, Error> {
             Ok(Some(Token::Digit(char.unwrap() as u8)))
         },
         Some('.') => {
+            *string = &string[1..];
             Ok(Some(Token::FractionMarker))
         },
         Some('e') | Some('E') => {
+            *string = &string[1..];
             Ok(Some(Token::ExponentMarker))
         }
         _ => {

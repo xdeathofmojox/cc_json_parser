@@ -161,4 +161,9 @@ mod tests {
     fn test_step_4_invalid() {
         assert!(handle_file("tests/step4/invalid.json").is_err());
     }
+
+    #[test]
+    fn test_step_5_valid() {
+        assert!(handle_file("tests/step5/valid.json").is_ok());
+    }
 }
