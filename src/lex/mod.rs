@@ -97,8 +97,16 @@ fn lex_string(string: &mut &str) -> Result<Option<Token>, Error> {
                 *string = &string[1..];
                 new_string.push_str(lex_escape(string)?.as_str());
             } else {
-                new_string.push(string.chars().nth(0).unwrap());
-                *string = &string[1..];
+                let new_char = string.chars().nth(0).unwrap();
+                match new_char {
+                    '\u{0020}' ..= '\u{10FFFF}' => {
+                        new_string.push(new_char);
+                        *string = &string[1..];
+                    }
+                    _ => {
+                        return Err(Error::new(std::io::ErrorKind::InvalidData, "Invalid Unicode Character in String"))
+                    }
+                }
             }
         }
         *string = &string[1..];
@@ -144,7 +152,7 @@ fn lex_escape_hex(string: &mut &str) -> Result<String, Error> {
     if string.len() < 4 {
         Err(Error::new(std::io::ErrorKind::InvalidData, "Not enough hex characters in escape"))
     } else {
-        let mut new_string = String::new();
+        let mut new_string = String::from("\\u");
         let mut chars = string.chars();
         for _ in 0..4 {
             let new_char = chars.nth(0).unwrap();
