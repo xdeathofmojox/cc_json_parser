@@ -127,10 +127,20 @@ fn parse_string(tokens: &mut VecDeque<Token>) -> Result<Option<JsonString>, Erro
 fn parse_number(tokens: &mut VecDeque<Token>) -> Result<Option<JsonNumber>, Error> {
     if let Some(integer) = parse_integer(tokens)? {
 
+        let mut fraction = None;
+        if let Some(new_fraction) = parse_fraction(tokens)? {
+            fraction = Some(new_fraction);
+        }
+
+        let mut exponent = None;
+        if let Some(new_exponent) = parse_exponent(tokens)? {
+            exponent = Some(new_exponent);
+        }
+
         Ok(Some(JsonNumber {
             integer,
-            fraction: None,
-            exponent: None,
+            fraction,
+            exponent,
         }))
     } else {
         Ok(None)
@@ -171,14 +181,76 @@ fn parse_integer(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
     }
 }
 
-#[allow(dead_code)]
-fn parse_fraction(_tokens: &VecDeque<Token>) -> Result<Option<u64>, Error> {
-    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
+fn parse_fraction(tokens: &mut VecDeque<Token>) -> Result<Option<u64>, Error> {
+    if let Some(&Token::FractionMarker) = tokens.front() {
+        tokens.pop_front();
+        let mut fraction_found = false;
+        let mut fraction_value: u64 = 0;
+        let mut counter = 0;
+
+        while let Some(&Token::Digit(val)) = tokens.front() {
+            tokens.pop_front();
+            let new_num = fraction_value.checked_add((val as u64) * 10_u64.pow(counter));
+            if new_num.is_some() {
+                fraction_value = new_num.unwrap();
+            } else {
+                return Err(Error::new(std::io::ErrorKind::InvalidData, "Fraction Component too large"));
+            }
+            fraction_found = true;
+            counter += 1;
+        }
+
+        if fraction_found {
+            return Ok(Some(fraction_value));
+        } else {
+            return Err(Error::new(std::io::ErrorKind::InvalidData, "No fraction component after fraction marker"));
+        }
+    }
+    Ok(None)
 }
 
-#[allow(dead_code)]
-fn parse_exponent(_tokens: &VecDeque<Token>) -> Result<Option<i64>, Error> {
-    Err(Error::new(std::io::ErrorKind::InvalidData, "Number Parsing not implemented"))
+fn parse_exponent(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
+    if let Some(&Token::ExponentMarker) = tokens.front() {
+        tokens.pop_front();
+        let mut found_exponent = false;
+        let mut exponent_value: i64 = 0;
+        let mut counter = 0;
+        let mut found_sign = false;
+        let mut neg_sign = false;
+
+        if let Some(&Token::SignNeg) = tokens.front() {
+            tokens.pop_front();
+            found_sign = true;
+            neg_sign = true;
+        } else if let Some(&Token::SignPos) = tokens.front() {
+            tokens.pop_front();
+            found_sign = true;
+        }
+
+        while let Some(&Token::Digit(val)) = tokens.front() {
+            tokens.pop_front();
+            let new_num = exponent_value.checked_add((val as i64) * 10_i64.pow(counter));
+            if new_num.is_some() {
+                exponent_value = new_num.unwrap();
+            } else {
+                return Err(Error::new(std::io::ErrorKind::InvalidData, "Exponent Component too large"));
+            }
+            found_exponent = true;
+            counter += 1;
+        }
+
+        if found_sign && !found_exponent {
+            return Err(Error::new(std::io::ErrorKind::InvalidData, "No digits following sign"));
+        } else if found_exponent {
+            if neg_sign {
+                exponent_value = -exponent_value;
+            }
+            return Ok(Some(exponent_value));
+        } else {
+            return Ok(None);
+        }
+    }
+    Ok(None)
 }
 
 fn parse_members(tokens: &mut VecDeque<Token>) -> Result<Option<Vec<JsonMember>>, Error> {
