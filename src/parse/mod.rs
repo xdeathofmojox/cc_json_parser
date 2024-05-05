@@ -159,5 +159,5 @@ fn parse_member(tokens: &mut VecDeque<Token>) -> Result<Option<JsonMember>, Erro
     }
 
     let element = parse_element(tokens)?;
-    return Ok(Some(JsonMember {string, element}));
+    Ok(Some(JsonMember {string, element}))
 }

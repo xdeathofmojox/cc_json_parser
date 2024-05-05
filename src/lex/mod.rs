@@ -97,7 +97,7 @@ fn lex_string(string: &mut &str) -> Result<Option<Token>, Error> {
                 *string = &string[1..];
                 new_string.push_str(lex_escape(string)?.as_str());
             } else {
-                let new_char = string.chars().nth(0).unwrap();
+                let new_char = string.chars().next().unwrap();
                 match new_char {
                     '\u{0020}' ..= '\u{10FFFF}' => {
                         new_string.push(new_char);
@@ -155,7 +155,7 @@ fn lex_escape_hex(string: &mut &str) -> Result<String, Error> {
         let mut new_string = String::from("\\u");
         let mut chars = string.chars();
         for _ in 0..4 {
-            let new_char = chars.nth(0).unwrap();
+            let new_char = chars.next().unwrap();
             match new_char {
                 '0'..='9' | 'a'..='f' | 'A'..='F' => {
                     new_string.push(new_char);

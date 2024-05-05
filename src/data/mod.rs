@@ -7,6 +7,11 @@ pub enum Token {
     CloseBracket,
     Comma,
     Colon,
+    Number {
+        integer: i64,
+        fraction: Option<u64>,
+        exponent: Option<i64>
+    },
     String(String),
     True,
     False,
@@ -41,13 +46,15 @@ pub struct JsonArray {
 }
 
 #[derive(Debug)]
-pub struct JsonString {
-    pub string: String,
+pub struct JsonNumber {
+    pub integer: i64,
+    pub fraction: Option<u64>,
+    pub exponent: Option<i64>,
 }
 
 #[derive(Debug)]
-pub struct JsonNumber {
-
+pub struct JsonString {
+    pub string: String,
 }
 
 #[derive(Debug)]
