@@ -244,13 +244,139 @@ mod tests {
 
     #[test]
     fn test_step_4_valid() {
-        assert!(handle_file("tests/step4/valid.json").is_ok());
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("value")
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key-n")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber {
+                                        integer: 101,
+                                        fraction: None,
+                                        exponent: None,
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key-o")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Object(JsonObject {
+                                        members: vec![]
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key-l")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Array(JsonArray {
+                                        elements: vec![]
+                                    })
+                                }
+                            },
+                        ]
+                    }
+                )
+            }
+        };
+
+        let json_result = handle_file("tests/step4/valid.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);    
     }
 
     #[test]
     fn test_step_4_valid_2() {
-        assert!(handle_file("tests/step4/valid2.json").is_ok());
-    }
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("value")
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key-n")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber {
+                                        integer: 101,
+                                        fraction: None,
+                                        exponent: None,
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key-o")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Object(JsonObject {
+                                        members: vec![
+                                            JsonMember {
+                                                string: JsonString {
+                                                    string: String::from("inner key")
+                                                },
+                                                element: JsonElement {
+                                                    value: JsonValue::String(JsonString {
+                                                        string: String::from("inner value")
+                                                    })
+                                                }
+                                            }
+                                        ]
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key-l")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Array(JsonArray {
+                                        elements: vec![
+                                            JsonElement {
+                                                value: JsonValue::String(JsonString {
+                                                    string: String::from("list value")
+                                                })
+                                            }
+                                        ]
+                                    })
+                                }
+                            },
+                        ]
+                    }
+                )
+            }
+        };
+
+        let json_result = handle_file("tests/step4/valid2.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);       }
 
     #[test]
     fn test_step_4_invalid() {
