@@ -164,6 +164,127 @@ mod tests {
 
     #[test]
     fn test_step_5_valid() {
-        assert!(handle_file("tests/step5/valid.json").is_ok());
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key1")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 100, 
+                                        fraction: None, 
+                                        exponent: None,
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key2")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 100, 
+                                        fraction: Some(0), 
+                                        exponent: None,
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key3")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 100, 
+                                        fraction: Some(0), 
+                                        exponent: Some(10),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key4")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 100, 
+                                        fraction: Some(0), 
+                                        exponent: Some(-10),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key5")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 100, 
+                                        fraction: Some(0), 
+                                        exponent: Some(10),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key6")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 999, 
+                                        fraction: Some(9999), 
+                                        exponent: Some(999),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key7")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 0, 
+                                        fraction: Some(0), 
+                                        exponent: Some(0),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key8")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 100, 
+                                        fraction: None, 
+                                        exponent: Some(8),
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key9")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::Number(JsonNumber { 
+                                        integer: 9_223_372_036_854_775_807i64, 
+                                        fraction: None, 
+                                        exponent: None,
+                                    })
+                                }
+                            },
+                        ]
+                    }
+                )
+            }
+        };
+
+        let json_result = handle_file("tests/step5/valid.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);
     }
 }

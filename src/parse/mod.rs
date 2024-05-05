@@ -148,7 +148,6 @@ fn parse_number(tokens: &mut VecDeque<Token>) -> Result<Option<JsonNumber>, Erro
 }
 
 fn parse_integer(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
-    let mut counter = 0;
     let mut neg_sign = false;
     let mut found_nums = false;
     let mut int_value: i64 = 0;
@@ -160,13 +159,8 @@ fn parse_integer(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
     while let Some(&Token::Digit(val)) = tokens.front() {
         tokens.pop_front();
         found_nums = true;
-        let new_num = int_value.checked_add((val as i64) * 10_i64.pow(counter));
-        if new_num.is_some() {
-            int_value = new_num.unwrap();
-        } else {
-            return Err(Error::new(std::io::ErrorKind::InvalidData, "Integer too large"));
-        }
-        counter += 1;
+        int_value *= 10;
+        int_value += val as i64;
     }
 
     if neg_sign && !found_nums {
@@ -186,18 +180,12 @@ fn parse_fraction(tokens: &mut VecDeque<Token>) -> Result<Option<u64>, Error> {
         tokens.pop_front();
         let mut fraction_found = false;
         let mut fraction_value: u64 = 0;
-        let mut counter = 0;
 
         while let Some(&Token::Digit(val)) = tokens.front() {
             tokens.pop_front();
-            let new_num = fraction_value.checked_add((val as u64) * 10_u64.pow(counter));
-            if new_num.is_some() {
-                fraction_value = new_num.unwrap();
-            } else {
-                return Err(Error::new(std::io::ErrorKind::InvalidData, "Fraction Component too large"));
-            }
+            fraction_value *= 10;
+            fraction_value += val as u64;
             fraction_found = true;
-            counter += 1;
         }
 
         if fraction_found {
@@ -214,7 +202,6 @@ fn parse_exponent(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
         tokens.pop_front();
         let mut found_exponent = false;
         let mut exponent_value: i64 = 0;
-        let mut counter = 0;
         let mut found_sign = false;
         let mut neg_sign = false;
 
@@ -229,14 +216,9 @@ fn parse_exponent(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
 
         while let Some(&Token::Digit(val)) = tokens.front() {
             tokens.pop_front();
-            let new_num = exponent_value.checked_add((val as i64) * 10_i64.pow(counter));
-            if new_num.is_some() {
-                exponent_value = new_num.unwrap();
-            } else {
-                return Err(Error::new(std::io::ErrorKind::InvalidData, "Exponent Component too large"));
-            }
+            exponent_value *= 10;
+            exponent_value += val as i64;
             found_exponent = true;
-            counter += 1;
         }
 
         if found_sign && !found_exponent {

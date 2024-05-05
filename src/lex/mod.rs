@@ -220,7 +220,8 @@ fn lex_number(string: &mut &str) -> Result<Option<Token>, Error> {
         },
         Some('0'..='9') => {
             *string = &string[1..];
-            Ok(Some(Token::Digit(char.unwrap() as u8)))
+            let dig = char.unwrap().to_digit(10).unwrap();
+            Ok(Some(Token::Digit(dig as u8)))
         },
         Some('.') => {
             *string = &string[1..];
