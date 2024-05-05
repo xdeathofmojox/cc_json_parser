@@ -151,6 +151,7 @@ fn parse_integer(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
     let mut neg_sign = false;
     let mut found_nums = false;
     let mut int_value: i64 = 0;
+    let mut chars_found: usize = 0;
     if let Some(&Token::SignNeg) = tokens.front() {
         tokens.pop_front();
         neg_sign = true;
@@ -161,11 +162,15 @@ fn parse_integer(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
         found_nums = true;
         int_value *= 10;
         int_value += val as i64;
+        chars_found += 1;
     }
 
     if neg_sign && !found_nums {
         Err(Error::new(std::io::ErrorKind::InvalidData, "No digits following sign"))
     } else if found_nums {
+        if int_value.to_string().len() < chars_found {
+            return Err(Error::new(std::io::ErrorKind::InvalidData, "No leading zeros allowed"));
+        }
         if neg_sign {
             int_value = -int_value;
         }
@@ -229,7 +234,7 @@ fn parse_exponent(tokens: &mut VecDeque<Token>) -> Result<Option<i64>, Error> {
             }
             return Ok(Some(exponent_value));
         } else {
-            return Ok(None);
+            return Err(Error::new(std::io::ErrorKind::InvalidData, "No digits following exponent"));
         }
     }
     Ok(None)
