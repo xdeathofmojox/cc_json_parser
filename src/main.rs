@@ -129,7 +129,40 @@ mod tests {
 
     #[test]
     fn test_step_2_valid_2() {
-        assert!(handle_file("tests/step2/valid2.json").is_ok());
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Object(
+                    JsonObject {
+                        members: vec![
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("value")
+                                    })
+                                }
+                            },
+                            JsonMember {
+                                string: JsonString {
+                                    string: String::from("key2")
+                                },
+                                element: JsonElement {
+                                    value: JsonValue::String(JsonString {
+                                        string: String::from("value")
+                                    })
+                                }
+                            }
+                        ]
+                    }
+                )
+            }
+        };
+
+        let json_result = handle_file("tests/step2/valid2.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);
     }
 
     #[test]
@@ -284,6 +317,32 @@ mod tests {
         };
 
         let json_result = handle_file("tests/step5/valid.json");
+        assert!(json_result.is_ok());
+        assert_eq!(json_result.unwrap(), expected);
+    }
+
+    #[test]
+    fn test_step_5_valid_2() {
+        let expected = JsonData {
+            element: JsonElement {
+                value: JsonValue::Array(
+                    JsonArray {
+                        elements: vec![
+                            JsonElement {
+                                value: JsonValue::True
+                            },
+                            JsonElement {
+                                value: JsonValue::False
+                            },
+                            JsonElement {
+                                value: JsonValue::Null
+                            },
+                        ]
+                    }
+                )
+            }
+        };
+        let json_result = handle_file("tests/step5/valid2.json");
         assert!(json_result.is_ok());
         assert_eq!(json_result.unwrap(), expected);
     }
